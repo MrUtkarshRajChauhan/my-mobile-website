@@ -6,4 +6,7 @@ import react from '@vitejs/plugin-react'
 // development server and the production build resolve the same files.
 export default defineConfig({
   plugins: [react()],
+  // GitHub Pages serves the site from the repository subpath:
+  // https://mrutkarshrajchauhan.github.io/my-mobile-website/
+  base: '/my-mobile-website/',
 })
