@@ -1,0 +1,160 @@
+/* ============================================================================
+   SITE SHELL — shared header, menu trigger, footer
+   ----------------------------------------------------------------------------
+   The global shell that makes the stacked content sections one connected
+   website (task: separate site-wide navigation from the About sequence's
+   subsection timeline):
+
+   - one fixed site header everywhere (brand + menu trigger) — the per-stage
+     headers inside Hero / AboutIntro / AboutPhilosophy were removed so the
+     same control can never appear twice;
+   - the monogram reuses the established CSS crop window (--mono-* tokens
+     from :root in index.css) so the brand mark is identical on every screen;
+   - z stack: content < About timeline (40) < menu panel (.mm, 60) < this
+     header (70) — the trigger therefore stays reachable above the open
+     panel and doubles as the obvious close control;
+   - the trigger itself (3-stroke icon, morphs to an X via .mm-open) is
+     styled here; its behaviour lives in MobileMenu.jsx.
+   ========================================================================== */
+
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem var(--page-gutter);
+  /* Legibility scrim for content scrolling beneath the bar. */
+  background: linear-gradient(
+    180deg,
+    rgb(2 10 9 / 82%) 0%,
+    rgb(2 10 9 / 44%) 64%,
+    rgb(2 10 9 / 0%) 100%
+  );
+  pointer-events: none;
+}
+
+/* The bar itself never blocks taps; only its two controls are interactive. */
+.site-header > * {
+  pointer-events: auto;
+}
+
+/* --- brand — same CSS crop window the hero monogram used ----------------- */
+
+.site__brand {
+  display: block;
+  text-decoration: none;
+}
+
+.site__monogram {
+  position: relative;
+  display: block;
+  height: var(--mono-mark-h);
+  width: calc(var(--mono-mark-h) / var(--mono-mark-ratio));
+  overflow: hidden;
+}
+
+.site__monogram img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(
+    (var(--mono-mark-h) / var(--mono-mark-ratio)) * var(--mono-canvas-scale)
+  );
+  max-width: none;
+  transform: translate(-50%, -50%);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.site__brand:focus-visible {
+  outline: 2px solid rgb(242 240 232 / 62%);
+  outline-offset: 3px;
+}
+
+/* --- menu trigger — three strokes in the circular outline ---------------- */
+
+.site__menu {
+  display: grid;
+  grid-auto-rows: min-content;
+  place-content: center;
+  row-gap: 4px;
+  width: clamp(2.75rem, 12.2vw, 3rem);
+  height: clamp(2.75rem, 12.2vw, 3rem);
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: rgb(2 10 9 / 30%);
+  cursor: pointer;
+  font: inherit;
+}
+
+.site__menu span {
+  display: block;
+  width: 1rem;
+  height: 1.5px;
+  border-radius: 1px;
+  background: var(--ink-ivory);
+}
+
+.site__menu:focus-visible {
+  outline: 2px solid rgb(242 240 232 / 62%);
+  outline-offset: 3px;
+}
+
+/* --- footer --------------------------------------------------------------- */
+
+.sf {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: clamp(1.25rem, 6vw, 2rem);
+  row-gap: 1rem;
+  padding:
+    clamp(2.25rem, 7svh, 3.5rem)
+    var(--page-gutter)
+    calc(env(safe-area-inset-bottom, 0px) + clamp(2rem, 6svh, 3rem));
+  border-top: 1px solid var(--line-muted);
+  background: var(--bg-deep);
+}
+
+.sf__brand {
+  flex: none;
+  text-decoration: none;
+  padding: 0.25rem 0;
+  margin: -0.25rem 0;
+}
+
+.sf__lines {
+  flex: 1 1 auto;
+  margin-left: auto;
+  text-align: right;
+  display: grid;
+  gap: 0.375rem;
+}
+
+.sf__line {
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-faint);
+}
+
+/* --- motion — controls ease only when the user accepts motion ------------ */
+
+@media (prefers-reduced-motion: no-preference) {
+  .site__menu {
+    transition:
+      background-color 0.18s ease,
+      color 0.18s ease;
+  }
+
+  .site__menu span {
+    transition: transform 0.18s ease, opacity 0.18s ease;
+  }
+
+  .site__menu:hover {
+    background: rgb(2 10 9 / 48%);
+  }
+}

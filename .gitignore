@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Vite production output
+dist/
+
+# Local environment files
+*.local
+.env
+.env.*
+!.env.example
+.DS_Store
+
+# Editor / OS
+.vscode/
+.idea/
+Thumbs.db
+
+# Locally installed agent-tooling skills (not website source)
+.agents/

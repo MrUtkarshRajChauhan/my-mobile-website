@@ -1,0 +1,17 @@
+/* ============================================================================
+   EXPERTISE REGION — wrapper around the Expertise screens and the persistent
+   bottom navigation. It groups the experience so the ExpertiseBar's sticky
+   containment (expertise-bar.css) stays inside the region and nothing
+   escapes to other pages. --expertise-bar-reserve is the bottom room each
+   frame's content keeps for the pinned bar's control band (its height; the
+   bar itself supplies its own safe-area/bottom inset).
+
+   The shared stationary `background-work-1.jpg` is painted by the global `.about-scene`
+   layer (styles/about-background.css, rendered by App.jsx) and is already
+   visible behind every non-Home view — Expertise reuses it; no second
+   background layer is introduced.
+   ========================================================================== */
+
+.expertise-region {
+  --expertise-bar-reserve: 2.75rem;
+}

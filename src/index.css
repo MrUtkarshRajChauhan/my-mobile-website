@@ -1,0 +1,664 @@
+/* ============================================================================
+   MOBILE HERO — design layer (single page)
+   ----------------------------------------------------------------------------
+   Palette and atmosphere follow the reference: deep emerald grounds, a single
+   bright mint reserved for emphasis and interaction, warm ivory ink, serif
+   display typography over a sans UI voice.
+
+   Fonts:
+   - Clash Display is the supplied local font (assets/ClashDisplay-Variable.woff2),
+     loaded via @font-face. It is a sans face and is used for UI text.
+   - The reference headline is an editorial serif. No serif font file is
+     supplied in this project's assets folder and external font downloads are
+     forbidden, so the headline uses a system serif stack.
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Clash Display';
+  src:
+    url('../assets/ClashDisplay-Variable.woff2') format('woff2-variations'),
+    url('../assets/ClashDisplay-Variable.woff2') format('woff2');
+  font-weight: 200 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+
+  /* Layout constants (site shell + content sections) */
+  /* Shared horizontal gutter for the content column, site chrome and the
+     About timeline (the hero keeps its own verified composition paddings). */
+  --page-gutter: clamp(1.125rem, 5vw, 1.375rem);
+  /* Fixed site header height (trigger 2.75–3rem + 0.75rem paddings); used
+     as the scroll offset so anchored content always lands below the bar. */
+  --header-offset: 4.75rem;
+  /* Reading-measure cap for supporting copy. */
+  --body-copy-max: 34rem;
+
+  /* Ink */
+  --ink-ivory: #f2f0e8;
+  --ink-soft: rgb(242 240 232 / 82%);
+  --ink-faint: #94a89d;
+
+  /* Ground + atmosphere */
+  --bg-deep: #020a09;
+
+  /* Accent — single mint for emphasis and interaction */
+  --mint: #50e3a4;
+  --mint-ink: #04140e;
+
+  /* Hairlines */
+  --line-muted: rgb(242 240 232 / 16%);
+  --line-strong: rgb(242 240 232 / 28%);
+
+  /* Type stacks */
+  --serif-display: 'Playfair Display', Georgia, 'Times New Roman', Times, serif;
+  --sans-ui: 'Clash Display', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Monogram crop: the artwork occupies x=541..994 / y=310..690 inside the
+     1536x1024 PNG. frameH / frameW == markH / markW == 0.8392, and the PNG
+     box must be 3.383x the frame width so the inked mark fills the frame. */
+  --mono-mark-ratio: 0.8392;
+  --mono-canvas-scale: 3.383;
+  --mono-mark-h: clamp(1.375rem, 6.2vw, 1.625rem);
+
+  /* ------------------------------------------------------------------
+     Desktop-port compatibility tokens (Work / Contact were authored
+     against the desktop project's design-token set). Mapped onto the
+     mobile project's existing values so the copied styles resolve without
+     a wholesale token rewrite. Additive aliases only.
+     ------------------------------------------------------------------ */
+  --color-bg-deep: #020a09;
+  --color-bg-base: #011611;
+  --color-bg-raised: #06221a;
+  --color-emerald-deep: #043d28;
+  --color-accent-deep: #00a878;
+  --color-ink-ivory: #f2f0e8;
+  --color-ink-soft: #d3dbd4;
+  --color-ink-muted: #a9b8b0;
+  --color-ink-faint: #94a89d;
+  --color-accent: #50e3a4;
+  --color-accent-ink: #020a09;
+  --color-accent-soft: rgb(80 227 164 / 14%);
+  --color-accent-line: rgb(80 227 164 / 38%);
+  --color-about-accent: #00e6bc;
+  --color-surface-glass: rgb(3 42 29 / 66%);
+  --color-line-emerald: rgb(0 168 120 / 30%);
+  --color-line-subtle: rgb(242 240 232 / 8%);
+  --color-line-muted: rgb(242 240 232 / 14%);
+  --color-line-strong: rgb(242 240 232 / 24%);
+  --color-scrim: rgb(3 5 9 / 24%);
+  --color-scrim-heavy: rgb(3 5 9 / 64%);
+  --z-page: 0;
+  --z-canvas: 1;
+  --z-cinematic-overlay: 2;
+  --z-content: 3;
+  --z-ui: 3;
+  --z-cinematic-transition: 3;
+  --z-interactive: 4;
+  --space-3xs: 0.25rem;
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+  --space-4xl: 8rem;
+  --frame-gutter: clamp(1.5rem, 3.5vw, 3.5rem);
+  --frame-inset: clamp(1rem, 2vw, 2rem);
+  --font-display: 'Clash Display', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-ui: 'Clash Display', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', Consolas, 'SF Mono', Menlo, monospace;
+  --text-display: clamp(3.5rem, 7.5vw, 8rem);
+  --text-title: clamp(2.25rem, 4.2vw, 4rem);
+  --text-heading: clamp(1.5rem, 2.4vw, 2.25rem);
+  --text-subheading: clamp(1.25rem, 1.7vw, 1.5rem);
+  --text-body-lg: clamp(1.125rem, 1.35vw, 1.375rem);
+  --text-body: clamp(1rem, 1.1vw, 1.125rem);
+  --text-nav: clamp(0.875rem, 1vw, 1rem);
+  --text-eyebrow: clamp(0.75rem, 0.8vw, 0.8125rem);
+  --text-button: clamp(0.875rem, 0.95vw, 0.9375rem);
+  --text-meta: clamp(0.6875rem, 0.75vw, 0.75rem);
+  --leading-display: 0.92;
+  --leading-heading: 1.08;
+  --leading-body: 1.6;
+  --leading-tight: 1.3;
+  --tracking-display: -0.03em;
+  --tracking-heading: -0.015em;
+  --tracking-body: 0;
+  --tracking-eyebrow: 0.18em;
+  --tracking-meta: 0.08em;
+  --tracking-nav: 0.02em;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-pill: 999px;
+  --focus-ring: 0 0 0 1px #020a09, 0 0 0 3px #50e3a4;
+  --indicator-core-glow: rgb(80 227 164 / 40%);
+  --indicator-outer-glow: rgb(80 227 164 / 18%);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  background: var(--bg-deep);
+}
+
+/* The content sections flow as one connected document (mandatory snap is
+   deliberately absent). Anchored navigation — menu links, the scroll cue,
+   timeline links, deep links — always lands content below the fixed site
+   header. */
+[id] {
+  scroll-margin-top: var(--header-offset);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Explicit references glide to their target; reduced motion gets the
+     instant jump (native default). */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  min-width: 320px;
+  /* The page ground lives on <html> (canvas level) so this box's background
+     cannot paint over the negative-z shared scene layer: in the root stacking
+     context, an in-flow block's own background paints after negative-z-index
+     descendants, which would have hidden `.about-scene` entirely (verified:
+     with `body { background: var(--bg-deep) }` the scene layer's artwork,
+     scrims and beads are invisible on every non-Home page). The hero, footer
+     and menu surfaces stay fully opaque over the scenery on Home and at the
+     site end, exactly as before. */
+  background: transparent;
+  color: var(--ink-ivory);
+  font-family: var(--sans-ui);
+  font-weight: 400;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img {
+  display: block;
+}
+
+svg {
+  display: block;
+}
+
+::selection {
+  background: rgb(80 227 164 / 30%);
+  color: var(--ink-ivory);
+}
+
+/* ------------------------------------------------------------------
+   HYPERLINK COLORS
+   Every anchor must declare its own theme color. With `color-scheme:
+   dark`, Chromium's UA stylesheet paints any anchor lacking a color
+   declaration in its dark-mode periwinkle #9e9eff — off-theme blue.
+   Anchors here inherit the surrounding ink (ivory/soft), and the
+   pressed (:active) state shifts to the mint accent. Primary CTAs
+   already sit on mint backgrounds, so their active state re-declares
+   the dark accent-ink instead of mint-on-mint.
+   ------------------------------------------------------------------ */
+a {
+  color: inherit;
+}
+
+a:active {
+  color: var(--mint);
+}
+
+a.hero__cta--primary:active,
+a.work__cta--primary:active,
+a.contact__action--primary:active {
+  color: var(--mint-ink);
+}
+
+/* ------------------------------------------------------------------
+   HERO STAGE
+   Full viewport height with dynamic-viewport fallbacks; horizontal
+   overflow is clipped here (never globally) so the oversized portrait
+   crop is contained while vertical flow stays free when the landscape
+   media query switches the stage to scrollable height.
+   ------------------------------------------------------------------ */
+
+.hero {
+  position: relative;
+  min-width: 320px;
+  height: 100vh;
+  overflow-x: clip;
+}
+
+@supports (height: 100dvh) {
+  .hero {
+    height: 100dvh;
+  }
+}
+
+/* HOME KEEP-OUT — the shared scene layer (`.about-scene`, visible from the
+   About region onward) must never reach Home. The hero's own atmosphere is a
+   gradient surface (not opaque), so the home section carries its own
+   opaque ground here and stays visually exactly as it has been. */
+#home {
+  background-color: var(--bg-deep);
+}
+
+/* ------------------------------------------------------------------
+   1) EMERALD ATMOSPHERE — pure CSS gradients, no image asset
+   ------------------------------------------------------------------ */
+
+.hero__atmos {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(52rem 30rem at 62% 34%, rgb(35 120 88 / 38%), transparent 68%),
+    radial-gradient(40rem 26rem at 18% 88%, rgb(9 54 40 / 50%), transparent 70%),
+    radial-gradient(70rem 44rem at 85% 0%, rgb(16 72 54 / 42%), transparent 72%),
+    linear-gradient(
+      180deg,
+      #142820 0%,
+      #0e1f18 42%,
+      #081510 68%,
+      #03100b 88%,
+      #020a08 100%
+    );
+}
+
+/* ------------------------------------------------------------------
+   2) PORTRAIT — transparent cutout, bottom-anchored, centered
+      Sizing scales with the viewport height (svh) so the subject's
+      head lands on roughly the same share of every phone class; the
+      square canvas overflows the narrow portrait width and the stage
+      clips the horizontal remainder.
+   ------------------------------------------------------------------ */
+
+.hero__portrait {
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  left: 50%;
+  height: clamp(24rem, 86vh, 62rem);
+  width: auto;
+  aspect-ratio: 1 / 1;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 0.5rem 1.5rem rgb(2 10 9 / 42%));
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+@supports (height: 100svh) {
+  .hero__portrait {
+    height: clamp(24rem, 78svh, 62rem);
+  }
+}
+
+/* ------------------------------------------------------------------
+   3) SCRIMS — legibility zones for the header and the lower copy
+   ------------------------------------------------------------------ */
+
+.hero__scrims {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(2 10 9 / 86%) 0%,
+      rgb(3 15 12 / 62%) 9%,
+      rgb(4 20 15 / 0%) 26%
+    ),
+    linear-gradient(
+      0deg,
+      rgb(2 10 9 / 90%) 0%,
+      rgb(3 13 10 / 66%) 18%,
+      rgb(4 17 13 / 34%) 34%,
+      rgb(4 17 13 / 0%) 58%
+    ),
+    linear-gradient(90deg, rgb(2 10 9 / 44%) 0%, rgb(2 10 9 / 0%) 46%);
+}
+
+/* ------------------------------------------------------------------
+   CONTENT FRAME
+   ------------------------------------------------------------------ */
+
+.hero__inner {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding:
+    calc(env(safe-area-inset-top, 0px) + clamp(0.875rem, 2.6svh, 1.25rem))
+    clamp(1.125rem, 5vw, 1.625rem)
+    calc(env(safe-area-inset-bottom, 0px) + clamp(1rem, 3svh, 1.5rem))
+    clamp(1.125rem, 5vw, 1.625rem);
+}
+
+.hero__cta:focus-visible {
+  outline: 2px solid rgb(242 240 232 / 62%);
+  outline-offset: 3px;
+}
+
+/* --- copy group ---------------------------------------------------- */
+
+.hero__main {
+  max-width: 36rem;
+  margin-top: auto;
+}
+
+.hero__eyebrow {
+  /* Moved to sit directly below the UR monogram (SiteHeader: 0.75rem top
+     padding + the monogram's fixed mark height), 8px below it. Same styling,
+     same content — only the position changes. */
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 0.75rem + var(--mono-mark-h) + 40px);
+  left: var(--page-gutter);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  row-gap: 0.375rem;
+  column-gap: 0.5rem;
+  margin-bottom: clamp(0.875rem, 3svh, 1.25rem);
+}
+
+.hero__eyebrow-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  padding: 0.4375rem 0.625rem 0.4375rem 0.5625rem;
+  border: 1px solid var(--line-muted);
+  border-radius: 999px;
+  font-size: clamp(0.5625rem, 2.3vw, 0.6563rem);
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.hero__eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 0 6px rgb(80 227 164 / 80%);
+}
+
+.hero__eyebrow-sep {
+  width: 1rem;
+  height: 1px;
+  background: var(--line-strong);
+}
+
+.hero__eyebrow-loc {
+  font-size: clamp(0.5625rem, 2.3vw, 0.6563rem);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+/* Editorial serif headline. The designed line spans stay atomic, so
+   wraps always fall on span boundaries (mint phrase never splits). */
+
+.hero__headline {
+  font-family: var(--serif-display);
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-size: clamp(1.4375rem, 6.9vw, 2rem);
+  line-height: 1.09;
+  letter-spacing: 0.004em;
+  margin-bottom: clamp(0.625rem, 2.2svh, 1rem);
+}
+
+.hero__headline > span {
+  white-space: nowrap;
+}
+
+.hero__headline-mint {
+  color: var(--mint);
+}
+
+.hero__para {
+  max-width: 30rem;
+  font-size: clamp(0.875rem, 3.55vw, 1rem);
+  line-height: 1.55;
+  color: var(--ink-soft);
+  margin-bottom: clamp(1.125rem, 3.8svh, 1.625rem);
+}
+
+/* --- CTAs ---------------------------------------------------------- */
+
+.hero__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5625rem;
+}
+
+.hero__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: clamp(2.75rem, 11.4vw, 3rem);
+  padding-inline: clamp(1.375rem, 4.8vw, 1.75rem);
+  border: 0;
+  border-radius: 999px;
+  font-family: var(--sans-ui);
+  font-size: clamp(0.8125rem, 3.3vw, 0.9063rem);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+}
+
+.hero__cta svg {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.hero__cta--primary {
+  background: var(--mint);
+  color: var(--mint-ink);
+}
+
+.hero__cta--ghost {
+  border: 1px solid rgb(242 240 232 / 24%);
+  background: rgb(2 10 9 / 30%);
+  color: var(--ink-ivory);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+/* --- trust row ------------------------------------------------------ */
+
+.hero__trust {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.8125rem, 3.4vw, 1.125rem);
+  margin-top: clamp(1.125rem, 4svh, 1.625rem);
+}
+
+.hero__avatars {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.hero__avatars img {
+  width: clamp(2rem, 8vw, 2.25rem);
+  height: auto;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  border: 2px solid #071410;
+  margin-left: -0.625rem;
+}
+
+.hero__avatars img:first-child {
+  margin-left: 0;
+}
+
+.hero__trust-title {
+  font-size: clamp(0.8125rem, 3.4vw, 0.9375rem);
+  font-weight: 600;
+  letter-spacing: 0.005em;
+}
+
+.hero__trust-sub {
+  margin-top: 0.125rem;
+  font-size: clamp(0.6563rem, 2.8vw, 0.7188rem);
+  letter-spacing: 0.02em;
+  color: var(--ink-faint);
+}
+
+/* --- scroll cue (right edge) ---------------------------------------- */
+
+.hero__scroll {
+  position: absolute;
+  z-index: 3;
+  right: calc(env(safe-area-inset-right, 0px) + clamp(0.625rem, 3vw, 0.9375rem));
+  /* Moved from the right edge's lower position to the upper-right, directly
+     below the hamburger button (same header geometry the metadata bar uses). */
+  top: calc(0.75rem + var(--mono-mark-h) + 44px);
+  bottom: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hero__scroll-label {
+  writing-mode: vertical-rl;
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.hero__scroll-line {
+  width: 1px;
+  height: clamp(1.75rem, 5svh, 2.75rem);
+  background: linear-gradient(
+    180deg,
+    rgb(242 240 232 / 38%) 0%,
+    rgb(242 240 232 / 8%) 100%
+  );
+}
+
+.hero__scroll-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgb(242 240 232 / 78%);
+}
+
+/* ------------------------------------------------------------------
+   MOBILE FIXES / SHORT PHONES
+   ------------------------------------------------------------------ */
+
+@media (max-width: 359px) {
+  .hero__headline {
+    font-size: 1.3125rem;
+  }
+
+  .hero__eyebrow-label,
+  .hero__eyebrow-loc {
+    font-size: 0.5625rem;
+  }
+
+  .hero__cta {
+    min-height: 2.75rem;
+    padding-inline: 1.125rem;
+  }
+}
+
+/* ------------------------------------------------------------------
+   LANDSCAPE PHONES
+   The stage keeps its natural flow: height becomes auto/min-dvh so
+   nothing is clipped, the portrait fills the stage height, and the
+   scroll cue centres on the right edge.
+   ------------------------------------------------------------------ */
+
+@media (orientation: landscape) and (max-height: 540px) {
+  .hero {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  @supports (min-height: 100dvh) {
+    .hero {
+      min-height: 100dvh;
+    }
+  }
+
+  .hero__portrait {
+    height: 100%;
+  }
+
+  .hero__para {
+    max-width: 38rem;
+  }
+
+  .hero__scroll {
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+/* ------------------------------------------------------------------
+   MOTION — controls ease only when the user accepts motion
+   ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero__cta {
+    transition:
+      background-color 0.18s ease,
+      filter 0.18s ease,
+      transform 0.18s ease;
+  }
+
+  .hero__cta--primary:hover {
+    filter: brightness(1.07);
+  }
+
+  .hero__cta--primary:active {
+    transform: translateY(1px);
+  }
+
+  .hero__cta--ghost:hover {
+    background: rgb(2 10 9 / 48%);
+  }
+
+  .hero__cta--ghost:active {
+    transform: translateY(1px);
+  }
+}
+/* Open-state trigger morphs to a close glyph (three bars -> X): the outer
+   strokes rotate onto the axis of the middle one, which fades out. Stroke
+   stack math: 3 x 1.5px + 2 x 4px gaps -> outer strokes sit +/-5.5px apart. */
+.mm-open span:first-child {
+  transform: translateY(5.5px) rotate(45deg);
+}
+
+.mm-open span:nth-child(2) {
+  opacity: 0;
+}
+
+.mm-open span:last-child {
+  transform: translateY(-5.5px) rotate(-45deg);
+}
+

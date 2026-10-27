@@ -1,0 +1,232 @@
+/* ============================================================================
+   ABOUT — Block 05 · Closing (final section of the About sequence)
+   ----------------------------------------------------------------------------
+   Mirrors the structural sheets of Blocks 01–04 (about-intro.css /
+   about-philosophy.css / about-approach.css / about-values.css) with the
+   sequence's established tokens. No header, rail or bottom bar of its own:
+   the fixed `.about-scene` scene layer, `SiteHeader` and
+   the persistent `AboutBar` own those.
+
+   Composition: the `05 —` section identifier with the CLOSING eyebrow
+   (uppercase-rendered in the established indicator slot), the three-line
+   serif headline "Let's build something" / "that moves your" /
+   "business forward." — the complete closing phrase in the sequence's
+   turquoise (#00e6bc), the rest the established warm ivory; the headline
+   spans wrap naturally when a viewport is too narrow instead of clipping.
+   The supporting paragraph follows at the established warm ivory soft
+   tone, and the LET'S TALK call-to-action closes the group: an outlined,
+   fully-rounded pill with a thin turquoise border, white uppercase label
+   and a straight horizontal arrow. Established copy only — nothing
+   invented beyond it.
+
+   Display scale: tuned from the spec's starting curve. The shared glyph
+   metrics keep the longest line ("Let's build something", 21 glyphs)
+   inside the content column down to the 320px floor viewport only with a
+   slightly gentler vw slope than Values' — `min(8.4vw, 4.25rem)` (no rem
+   floor), so the designed three-line composition holds across the whole
+   mobile battery and relaxes by natural wrap above it.
+
+   Background: transparent on purpose — the fixed `.about-scene` layer
+   (styles/about-background.css, rendered by App.jsx) shows through
+   everywhere in the About region and never moves with the content.
+
+   Content reveal: restrained GSAP entrance via useSectionReveal.js under
+   `prefers-reduced-motion: no-preference`.
+   ========================================================================== */
+
+.ac {
+  --ac-accent: #00e6bc;
+
+  color-scheme: dark;
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  overflow-x: clip;
+  /* Transparent ground on purpose: the fixed .about-scene layer shows
+     through everywhere in the About region. */
+  color: var(--ink-ivory);
+  font-family: var(--sans-ui);
+}
+
+@supports (min-height: 100dvh) {
+  .ac {
+    min-height: 100dvh;
+  }
+
+  .ac__frame {
+    min-height: 100dvh;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   PHONE FRAME — content column; capped + centered on wide viewports only.
+   --------------------------------------------------------------------------- */
+
+.ac__frame {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 30rem;
+  min-height: 100vh;
+  margin-inline: auto;
+  /* Top padding holds this section's content clear of the fixed SiteHeader
+     bar; bottom padding reserves the pinned
+     AboutBar band (--about-bar-reserve is set by the About region in
+     about-background.css — see about-intro.css for the geometry note). The
+     frame grows with content; long compositions scroll naturally. */
+  padding:
+    calc(env(safe-area-inset-top, 0px) + var(--header-offset) + 1.5rem)
+    var(--page-gutter)
+    calc(
+      env(safe-area-inset-bottom, 0px) + clamp(0.875rem, 2.4svh, 1.125rem) +
+      var(--about-bar-reserve, 2.75rem)
+    )
+    var(--page-gutter);
+}
+
+.ac__main {
+  margin-top: auto;
+  padding-top: clamp(1.25rem, 4svh, 2rem);
+}
+
+/* --- section identifier (number + eyebrow) ------------------------------- */
+
+.ac__indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  margin: 0 0 clamp(0.75rem, 2.6svh, 1rem);
+}
+
+.ac__indicator-num {
+  font-family: var(--serif-display);
+  font-size: clamp(1.4375rem, 6vw, 1.75rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: rgb(242 240 232 / 88%);
+}
+
+.ac__indicator-label {
+  font-size: clamp(0.625rem, 2.5vw, 0.6875rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* --- headline — three designed lines, the closing phrase in accent ------- */
+
+.ac__headline {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--serif-display);
+  font-weight: 400;
+  /* Fluid-only curve, tuned from the spec's clamped start so the longest
+     line stays on one line at the 320px battery floor (measured glyph
+     metrics); no fixed rem floor, same policy as Block 04. */
+  font-size: min(8.4vw, 4.25rem);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  margin: 0 0 clamp(1.125rem, 3.6svh, 1.5rem);
+}
+
+.ac__headline-accent {
+  font-style: normal;
+  color: var(--ac-accent);
+}
+
+/* --- supporting paragraph — established warm-white voice ----------------- */
+
+.ac__para {
+  margin: 0 0 clamp(1.5rem, 4.4svh, 2rem);
+  max-width: var(--body-copy-max);
+  font-size: clamp(0.9375rem, 3.4vw, 1.0625rem);
+  line-height: 1.6;
+  color: var(--ink-soft);
+  overflow-wrap: break-word;
+}
+
+/* --- LET'S TALK — outlined pill CTA with a straight horizontal arrow ----- */
+/* Non-navigational for now: no contact destination is implemented in this
+   application, so the control stays a real, focusable button rather than
+   dead-linking. Keyboard focus and pressed states are specified below. */
+
+.ac__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 2.875rem; /* ≥ 44px touch target */
+  padding: 0.55rem 1.375rem;
+  border: 1px solid rgb(0 230 188 / 52%);
+  border-radius: 999px;
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-ivory);
+  cursor: pointer;
+}
+
+.ac__cta svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--ac-accent);
+}
+
+.ac__cta:focus-visible {
+  outline: 2px solid rgb(242 240 232 / 62%);
+  outline-offset: 3px;
+}
+
+.ac__cta:active {
+  background: rgb(0 230 188 / 10%);
+}
+
+/* Pressed feedback must not produce a layout change from :hover/:active
+   fills alone — the fill/colour swap is the feedback. */
+
+/* ---------------------------------------------------------------------------
+   NARROW PHONES — keep the hierarchy; the headline wraps naturally, so only
+   tracking needs adjusting here.
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 359px) {
+  .ac__indicator-label {
+    letter-spacing: 0.12em;
+  }
+
+  .ac__cta {
+    letter-spacing: 0.12em;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   MOTION — restrained hover feedback only when the user accepts motion.
+   --------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .ac__cta {
+    transition:
+      border-color 0.18s ease,
+      background-color 0.18s ease;
+  }
+
+  .ac__cta:hover {
+    border-color: rgb(0 230 188 / 78%);
+    background: rgb(0 230 188 / 7%);
+  }
+
+  .ac__cta:hover svg {
+    filter: brightness(1.12);
+  }
+
+  .ac__cta:active {
+    transform: translateY(1px);
+  }
+}

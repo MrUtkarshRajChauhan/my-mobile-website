@@ -1,0 +1,156 @@
+/* ============================================================================
+   ABOUT — Block 04 · Values (fourth section of the About sequence)
+   ----------------------------------------------------------------------------
+   Mirrors the structural sheets of Blocks 01–03 (about-intro.css /
+   about-philosophy.css / about-approach.css) with the sequence's established
+   tokens. No header, rail or bottom bar of its own: the fixed `.about-scene`
+   scene layer, `SiteHeader` and the persistent `AboutBar`
+   own those.
+
+   Composition: the `04 —` section identifier with the WHAT I VALUE eyebrow
+   (uppercase-rendered in the established indicator slot), the two-line serif
+   headline "The details" / "make the difference." — `details` and the final
+   period in the sequence's turquoise (#00e6bc), the rest the established
+   warm ivory; the headline spans wrap naturally when a viewport is too
+   narrow instead of clipping. Body copy follows at the established warm
+   ivory soft tone. Established copy only — nothing invented beyond it.
+
+   Display scale: the Block 01 large-statement curve adapted to this block
+   (clamp 2.6rem–4.2rem, line-height 1.03) so the values statement keeps the
+   premium presence of the sequence's big serif moments.
+
+   Background: transparent on purpose — the fixed `.about-scene` layer
+   (styles/about-background.css, rendered by App.jsx) shows through
+   everywhere in the About region and never moves with the content.
+
+   Content reveal: restrained GSAP entrance via useSectionReveal.js under
+   `prefers-reduced-motion: no-preference`.
+   ========================================================================== */
+
+.av {
+  --av-accent: #00e6bc;
+
+  color-scheme: dark;
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  overflow-x: clip;
+  /* Transparent ground on purpose: the fixed .about-scene layer shows
+     through everywhere in the About region. */
+  color: var(--ink-ivory);
+  font-family: var(--sans-ui);
+}
+
+@supports (min-height: 100dvh) {
+  .av {
+    min-height: 100dvh;
+  }
+
+  .av__frame {
+    min-height: 100dvh;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   PHONE FRAME — content column; capped + centered on wide viewports only.
+   --------------------------------------------------------------------------- */
+
+.av__frame {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 30rem;
+  min-height: 100vh;
+  margin-inline: auto;
+  /* Top padding holds this section's content clear of the fixed SiteHeader
+     bar; bottom padding reserves the pinned
+     AboutBar band (--about-bar-reserve is set by the About region in
+     about-background.css — see about-intro.css for the geometry note). The
+     frame grows with content; long compositions scroll naturally. */
+  padding:
+    calc(env(safe-area-inset-top, 0px) + var(--header-offset) + 1.5rem)
+    var(--page-gutter)
+    calc(
+      env(safe-area-inset-bottom, 0px) + clamp(0.875rem, 2.4svh, 1.125rem) +
+      var(--about-bar-reserve, 2.75rem)
+    )
+    var(--page-gutter);
+}
+
+.av__main {
+  margin-top: auto;
+  padding-top: clamp(1.25rem, 4svh, 2rem);
+}
+
+/* --- section identifier (number + eyebrow) ------------------------------- */
+
+.av__indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  margin: 0 0 clamp(0.75rem, 2.6svh, 1rem);
+}
+
+.av__indicator-num {
+  font-family: var(--serif-display);
+  font-size: clamp(1.4375rem, 6vw, 1.75rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: rgb(242 240 232 / 88%);
+}
+
+.av__indicator-label {
+  font-size: clamp(0.625rem, 2.5vw, 0.6875rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* --- headline — two designed lines, accent inside each -------------------- */
+
+.av__headline {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--serif-display);
+  font-weight: 400;
+  /* Fluid-only curve: min(8.8vw, 4.2rem) without a rem floor — measured
+     glyph widths keep "make the difference." on one line down to the 320px
+     floor viewport, so the designed two-line composition holds across the
+     whole mobile battery instead of relaxing to a third wrapped line. */
+  font-size: min(8.8vw, 4.2rem);
+  line-height: 1.03;
+  letter-spacing: -0.04em;
+  margin: 0 0 clamp(1.125rem, 3.6svh, 1.5rem);
+}
+
+.av__headline-accent {
+  font-style: normal;
+  color: var(--av-accent);
+}
+
+/* --- body copy — established warm-white voice ----------------------------- */
+
+.av__para {
+  margin: 0 0 clamp(1.375rem, 4svh, 2rem);
+  max-width: var(--body-copy-max);
+  font-size: clamp(0.9375rem, 3.4vw, 1.0625rem);
+  line-height: 1.6;
+  color: var(--ink-soft);
+  overflow-wrap: break-word;
+}
+
+/* ---------------------------------------------------------------------------
+   NARROW PHONES — keep the hierarchy; the headline wraps naturally, so only
+   tracking needs adjusting here.
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 359px) {
+  .av__indicator-label {
+    letter-spacing: 0.12em;
+  }
+}

@@ -1,0 +1,141 @@
+/* ============================================================================
+   ABOUT SCENE — the non-Home experience's persistent background layer
+   ----------------------------------------------------------------------------
+   One fixed, app-owned layer paints the desktop Work/Contact theme artwork,
+   `assets/background-work-1.jpg` (1408x736, byte-identical to the desktop
+   project's `assets/background-work-1.jpg` — the asset the desktop paints
+   through its ONE fixed `.static-background` layer behind Work and Contact:
+   cover-fitted, centred, never tiled, on the deep page colour, never moved).
+   That is the source of truth this layer reproduces, applied consistently to
+   every non-Home page: About, Expertise 1-3, Work 1-2 and Contact, all of
+   whose sections already sit transparent over this shared layer. The
+   environment stays still while the About content moves upward through it:
+   the layer is fixed to the viewport (cover, centered, never tiled — one
+   stable frame of the artwork on every viewport, identical across the whole
+   sequence) and nothing about it animates — no transform, no
+   background-position/size change, no opacity, no image swaps between
+   subsections. The former per-section `.ai-backdrop` / `.ph-backdrop`
+   paintings are retired.
+
+   Why `z-index: -1` and no visibility toggling: the layer paints above the
+   document canvas but below every in-flow section, and everything outside
+   the About region is opaque — the Hero's full-surface atmosphere
+   (index.css), the footer's `--bg-deep` ground (site.css) and the menu's
+   full-surface panel (index.css) — so the scenery can never show through
+   Home or the site end, and none of those styles were touched. Fixed
+   `background-attachment` stays deliberately unused (unreliable on touch
+   devices); a JS visibility toggle would only add scroll-time state to a
+   purely positional concern and is not needed.
+
+   Legibility treatment (static, identical on every block): the header band,
+   the bottom band and the copy-zone radial — the restrained scrims the
+   blocks used to carry individually, unified on the one shared layer.
+
+   The layer is imported and rendered by App.jsx alongside the fixed site
+   chrome; the About region wrapper below only contains the sequence.
+   ========================================================================== */
+
+.about-scene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* Ground + pre-artwork fallback while the image loads. */
+  background-color: #04120d;
+  background-image: url('../../assets/background-work-1.jpg');
+  background-size: cover;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+}
+
+.about-scene::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Corner glows — sampled from the artwork's own pixels
+     (upper-left ≈ rgb(16,105,75), lower-right ≈ rgb(22,128,80)). On a wide
+     viewport the asset's cover-fit already shows them; on portrait phones
+     the cover crop hides the asset's corners, so these restrained,
+     viewport-anchored radials keep the desktop theme's characteristic
+     lighting in place at every mobile viewport size. Static: never moved,
+     resized or animated during scrolling or page transitions. */
+  background:
+    radial-gradient(
+      58% 46% at 0% 0%,
+      rgb(16 105 75 / 52%) 0%,
+      rgb(16 105 75 / 14%) 46%,
+      rgb(16 105 75 / 0%) 74%
+    ),
+    radial-gradient(
+      46% 38% at 100% 100%,
+      rgb(22 128 80 / 46%) 0%,
+      rgb(22 128 80 / 12%) 44%,
+      rgb(22 128 80 / 0%) 72%
+    );
+}
+
+/* Static legibility treatment — stays put with the artwork (the blocks'
+   established scrim values, unified). */
+.about-scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(2 10 9 / 78%) 0%,
+      rgb(2 10 9 / 30%) 12%,
+      rgb(2 10 9 / 0%) 30%
+    ),
+    linear-gradient(
+      0deg,
+      rgb(2 10 9 / 86%) 0%,
+      rgb(3 14 11 / 48%) 15%,
+      rgb(4 17 13 / 0%) 40%
+    ),
+    radial-gradient(120% 55% at 50% 90%, rgb(2 8 6 / 40%), rgb(2 8 6 / 0%) 72%);
+}
+
+/* ---------------------------------------------------------------------------
+   THREAD BEADS — static luminous nodes along the artwork's curves, inside
+   `.about-scene`. Copied from the desktop Work/Contact background overlay
+   (styles/layout.css's `.work-background__thread-overlay` block): the overlay
+   adds no line of its own — the desktop's THREAD_SHIMMER paths live in <defs>
+   (never stroked) and carry one small, dimensional mint-neon bead per thread
+   (radial halo, mint body, bright core, offset specular). On the desktop the
+   beads travel with native SMIL; this layer is a stationary environment by
+   established constraint, so the beads rest at fixed points on the paths.
+   `viewBox` + `xMidYMid slice` align the overlay to the artwork's cover crop
+   at every viewport. No CSS animation, no canvas, no rAF, no GSAP ticker, no
+   React props changing at runtime — nothing on this layer moves.
+   --------------------------------------------------------------------------- */
+.work-background__thread-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Motion-only paths. They sit in <defs>, so the renderer never draws them —
+   the artwork's own lines stay the only paint. */
+.work-background__thread-overlay path {
+  fill: none;
+  stroke: none;
+}
+
+/* ---------------------------------------------------------------------------
+   ABOUT REGION — wrapper around the About subsections and the persistent
+   bottom navigation. It groups the sequence so the bar's sticky containment
+   (about-bar.css) stays inside the region and nothing escapes to other
+   pages. --about-bar-reserve is the bottom room each frame's content keeps
+   for the pinned bar's control band (its height; the bar itself supplies its
+   own safe-area/bottom inset).
+   --------------------------------------------------------------------------- */
+
+.about-region {
+  --about-bar-reserve: 2.75rem;
+}

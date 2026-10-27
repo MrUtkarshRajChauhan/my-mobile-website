@@ -1,0 +1,250 @@
+/* ============================================================================
+   ABOUT — Block 03 · Approach (third section of the About sequence)
+   ----------------------------------------------------------------------------
+   Mirrors the structural sheets of Blocks 01/02 (about-intro.css /
+   about-philosophy.css) with the sequence's established tokens. No header,
+   rail or bottom bar of its own: the fixed `.about-scene` scene layer,
+   `SiteHeader` and the persistent `AboutBar` own those.
+
+   Established tokens:
+   - turquoise accent #00e6bc — the About-sequence accent set on Block 01
+     (headline accent word + the workflow's step numbers)
+   - ivory ink + serif display headline over the sans UI voice (root tokens)
+
+   New composition: the workflow timeline — a real vertical process rail with
+   four numbered steps. Grid-driven (marker column + content column), so each
+   marker aligns with its own step and nothing is positioned by hand. The
+   connecting rail is drawn per-step (`::before` segments) and its ends are
+   trimmed to the first/last markers by the row's own typography constants —
+   no hardcoded coordinates.
+
+   Content reveal: restrained GSAP entrance via useSectionReveal.js under
+   `prefers-reduced-motion: no-preference`.
+
+   Background: transparent on purpose — the fixed `.about-scene` layer
+   (styles/about-background.css, rendered by App.jsx) shows through everywhere
+   in the About region and never moves with the content.
+   ========================================================================== */
+
+.ap {
+  --ap-accent: #00e6bc;
+
+  color-scheme: dark;
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  overflow-x: clip;
+  /* Transparent ground on purpose: the fixed .about-scene layer shows
+     through everywhere in the About region. */
+  color: var(--ink-ivory);
+  font-family: var(--sans-ui);
+}
+
+@supports (min-height: 100dvh) {
+  .ap {
+    min-height: 100dvh;
+  }
+
+  .ap__frame {
+    min-height: 100dvh;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   PHONE FRAME — content column; capped + centered on wide viewports only.
+   --------------------------------------------------------------------------- */
+
+.ap__frame {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 30rem;
+  min-height: 100vh;
+  margin-inline: auto;
+  /* Top padding holds this section's content clear of the fixed SiteHeader
+     bar; bottom padding reserves the pinned
+     AboutBar band (--about-bar-reserve is set by the About region in
+     about-background.css — see about-intro.css for the geometry note). The
+     frame grows with content; long compositions scroll naturally. */
+  padding:
+    calc(env(safe-area-inset-top, 0px) + var(--header-offset) + 1.5rem)
+    var(--page-gutter)
+    calc(
+      env(safe-area-inset-bottom, 0px) + clamp(0.875rem, 2.4svh, 1.125rem) +
+      var(--about-bar-reserve, 2.75rem)
+    )
+    var(--page-gutter);
+}
+
+.ap__main {
+  margin-top: auto;
+  padding-top: clamp(1.25rem, 4svh, 2rem);
+}
+
+/* --- section identifier (number + eyebrow) ------------------------------- */
+
+.ap__indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  margin: 0 0 clamp(0.75rem, 2.6svh, 1rem);
+}
+
+.ap__indicator-num {
+  font-family: var(--serif-display);
+  font-size: clamp(1.4375rem, 6vw, 1.75rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: rgb(242 240 232 / 88%);
+}
+
+.ap__indicator-label {
+  font-size: clamp(0.625rem, 2.5vw, 0.6875rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* --- headline — three designed lines with the accent on the last ---------
+      Spans hold the designed line breaks but are allowed to wrap naturally
+      when a viewport is too narrow (no forced nowrap): long lines break into
+      a new visual line instead of clipping or shrinking. */
+
+.ap__headline {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--serif-display);
+  font-weight: 400;
+  font-size: clamp(1.95rem, 8.2vw, 3.1rem);
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+  margin: 0 0 clamp(1.125rem, 3.6svh, 1.5rem);
+}
+
+.ap__headline-accent {
+  font-style: normal;
+  color: var(--ap-accent);
+}
+
+/* ---------------------------------------------------------------------------
+   WORKFLOW TIMELINE — four steps along one continuous vertical rail.
+   Each step is a grid: [marker rail column | content column]; rows are the
+   step title then its description. The rail is painted per step so it stays
+   continuous behind the markers, and the first/last segments clip exactly to
+   the first/last marker's center via the title's own line metrics.
+   --------------------------------------------------------------------------- */
+
+.ap__steps {
+  --ap-rail-w: 1.5rem;
+  --ap-title-size: clamp(0.9375rem, 3.5vw, 1.0625rem);
+  --ap-title-lh: 1.35;
+  /* The marker's vertical center = the title line's center (both derived
+     from the same type metrics). */
+  --ap-marker-center: calc(var(--ap-title-size) * var(--ap-title-lh) / 2);
+  --ap-dot: 8px;
+
+  position: relative;
+  display: grid;
+  row-gap: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 clamp(1.375rem, 4svh, 2rem);
+}
+
+.ap__step {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--ap-rail-w) minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: clamp(0.75rem, 3vw, 1.25rem);
+  align-items: start;
+  min-width: 0;
+}
+
+/* The breathing room between steps lives INSIDE each step box, so the rail
+   segments below stay contiguous across the gaps. */
+.ap__step:not(:last-child) {
+  padding-bottom: clamp(1.25rem, 4svh, 2.25rem);
+}
+
+/* Rail segment behind this step's marker run. */
+.ap__step::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--ap-rail-w) / 2 - 1px);
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgb(242 240 232 / 16%);
+  pointer-events: none;
+}
+
+/* End trims: the rail starts/ends at the first/last marker's center. */
+.ap__step:first-child::before {
+  top: var(--ap-marker-center);
+}
+
+.ap__step:last-child::before {
+  bottom: calc(100% - var(--ap-marker-center));
+}
+
+/* Marker: grid-centered against the title's row, so its center sits exactly
+   on the title line itself — never on an arbitrary screen coordinate. */
+.ap__step-marker {
+  grid-area: 1 / 1;
+  align-self: center;
+  justify-self: center;
+  width: var(--ap-dot);
+  height: var(--ap-dot);
+  border-radius: 50%;
+  background: rgb(242 240 232 / 34%);
+}
+
+.ap__step-title {
+  grid-area: 1 / 2;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: var(--ap-title-size);
+  font-weight: 500;
+  line-height: var(--ap-title-lh);
+  color: var(--ink-ivory);
+}
+
+.ap__step-num {
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: calc(var(--ap-title-lh) / 1.35);
+  letter-spacing: 0.14em;
+  color: var(--ap-accent);
+}
+
+.ap__step-desc {
+  grid-area: 2 / 2;
+  margin: 0.4rem 0 0;
+  font-size: clamp(0.875rem, 3.2vw, 0.9375rem);
+  line-height: 1.6;
+  color: var(--ink-soft);
+  overflow-wrap: break-word;
+}
+
+/* ---------------------------------------------------------------------------
+   NARROW PHONES — keep the hierarchy; the headline wraps naturally, so only
+   tracking needs adjusting here.
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 359px) {
+  .ap__indicator-label {
+    letter-spacing: 0.12em;
+  }
+
+  .ap__step-num {
+    letter-spacing: 0.12em;
+  }
+}

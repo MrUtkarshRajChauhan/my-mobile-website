@@ -1,0 +1,207 @@
+/* ============================================================================
+   EXPERTISE BOTTOM NAVIGATION — the experience's persistent ExpertiseBar
+   ----------------------------------------------------------------------------
+   EXPERTISE (left) · three-position progress track (center) · WORK (right,
+   straight horizontal arrow).
+
+   ONE persistent instance for the whole Expertise experience, rendered at
+   the end of the Expertise region wrapper (see expertise-region.css).
+   `position: sticky; bottom: 0` pins it to the viewport bottom while the
+   experience's content scrolls and releases it exactly when the region's
+   content ends — the navigation never travels upward with a screen, never
+   disappears mid-experience and is never duplicated or restyled per screen.
+   Only a position's active state changes.
+
+   Controls follow the scroll-synced route (`current` from App.jsx): at Page
+   01 EXPERTISE is the current location (aria-current, not a link); WORK has
+   no implemented destination and stays a non-navigational button.
+
+   The track is a cumulative three-position progress indicator, not a
+   flowing fill: one fixed position per Expertise page. A position whose
+   page has been reached is active; all earlier positions stay active;
+   positions never move or resize; only the changed position's own state
+   eases (motion-gated; instant under `prefers-reduced-motion: reduce`).
+   Outside the Expertise experience no position is active, so no stale
+   Expertise state reaches other pages. `aria-valuenow` reports the step
+   count (0–3).
+
+   Legibility: a static top-fade scrim above the pinned band — the same
+   treatment the fixed site header applies for content scrolling beneath.
+
+   Geometry: the row is the capped 30rem content column (gutters inclusive),
+   so the band lands exactly on the content column of every viewport.
+   ========================================================================== */
+
+.eb {
+  --eb-accent: #00e6bc;
+
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
+  /* The band's empty middle passes taps through to the content behind it;
+     its controls re-enable pointer events individually. */
+  pointer-events: none;
+}
+
+/* Static fade for content traveling past the pinned band. */
+.eb::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: 5rem;
+  background: linear-gradient(
+    0deg,
+    rgb(2 10 9 / 86%) 0%,
+    rgb(3 14 11 / 40%) 34%,
+    rgb(4 17 13 / 0%) 100%
+  );
+  pointer-events: none;
+}
+
+.eb__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  max-width: 30rem;
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+  padding-bottom: calc(
+    env(safe-area-inset-bottom, 0px) + clamp(0.875rem, 2.4svh, 1.125rem)
+  );
+}
+
+/* --- EXPERTISE — current location at Page 01, a link from Page 02 on ----- */
+
+.eb__expertise {
+  flex: none;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+span.eb__expertise {
+  cursor: default;
+}
+
+a.eb__expertise {
+  text-decoration: none;
+  pointer-events: auto;
+}
+
+.eb__expertise:focus-visible {
+  outline: 2px solid rgb(242 240 232 / 62%);
+  outline-offset: 3px;
+}
+
+/* --- step track — the experience's one three-position indicator ---------- */
+
+.eb__track {
+  flex: 1 1 0%;
+  max-width: 6rem;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.3rem, 2.2vw, 0.5rem);
+  margin-inline: auto;
+}
+
+.eb__track-cell {
+  position: relative;
+  flex: 1 1 0%;
+  height: 2px;
+  border-radius: 1px;
+  background: rgb(242 240 232 / 16%);
+}
+
+.eb__track-cell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: var(--eb-accent);
+  box-shadow:
+    0 0 5px rgb(0 230 188 / 38%),
+    0 0 11px rgb(0 230 188 / 14%);
+  opacity: 0;
+}
+
+.eb__track-cell.is-active::after {
+  opacity: 1;
+}
+
+/* --- WORK — no destination exists yet, stays inert ------------------------ */
+
+.eb__work {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0.4rem 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgb(242 240 232 / 78%);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+a.eb__work {
+  text-decoration: none;
+}
+
+.eb__work svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  color: var(--eb-accent);
+}
+
+.eb__work:focus-visible {
+  outline: 2px solid rgb(242 240 232 / 62%);
+  outline-offset: 3px;
+}
+
+/* ---------------------------------------------------------------------------
+   NARROW PHONES
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 359px) {
+  .eb__expertise,
+  .eb__work {
+    font-size: 0.6875rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   MOTION
+   --------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  a.eb__expertise,
+  .eb__work {
+    transition: color 0.18s ease, background-color 0.18s ease, filter 0.18s ease;
+  }
+
+  .eb__track-cell::after {
+    transition: opacity 0.2s ease;
+  }
+
+  a.eb__expertise:hover {
+    color: var(--eb-accent);
+  }
+
+  .eb__work:hover {
+    color: var(--ink-ivory);
+  }
+
+  .eb__work:hover svg {
+    filter: brightness(1.12);
+  }
+}

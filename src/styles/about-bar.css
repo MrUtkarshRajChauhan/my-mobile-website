@@ -1,0 +1,224 @@
+/* ============================================================================
+   ABOUT BOTTOM NAVIGATION — the sequence's persistent AboutBar
+   ----------------------------------------------------------------------------
+   ABOUT (left) · five-position sequence step track (center) · NEXT /
+   EXPERTISE (right, straight horizontal arrow).
+
+   ONE persistent instance for the whole About sequence, rendered
+   at the end of the About region wrapper (see about-background.css).
+   `position: sticky; bottom: 0` pins it to the viewport bottom while the
+   sequence's content scrolls and releases it exactly when the region's
+   content ends — the navigation never travels upward with a subsection,
+   never disappears mid-sequence and is never duplicated or restyled per
+   block. Only a position's active state changes.
+
+   Controls follow the scroll-synced route (`current` from App.jsx):
+   - Block 01: ABOUT is the current location (aria-current, not a link) and
+     NEXT advances to Block 02 (`#/about/philosophy`).
+   - Block 02: ABOUT leads back to Block 01 and NEXT advances to Block 03
+     (`#/about/approach`).
+   - Block 03: NEXT advances to Block 04 (`#/about/values`).
+   - Block 04: NEXT advances to Block 05 (`#/about/closing`).
+   - Block 05 (the sequence's end): the same right-hand slot presents
+     EXPERTISE — no Expertise area exists in this application yet, so the
+     control is a non-navigational button rather than a dead link.
+   The control arrows point horizontally to the right in every route.
+
+   The track is a cumulative five-position STEP INDICATOR, not a flowing
+   fill: one fixed position per subsection, in sequence. A position whose
+   subsection has been reached is active; all earlier positions stay
+   active; positions never move, resize or slide (`A_j = j <= i`). The
+   paint layer (`::after`) is always the same full dash — its FILL SPAN
+   DOES NOT CHANGE — and only its opacity carries the active state, easing
+   where the changed position is (motion-gated; instant under
+   `prefers-reduced-motion: reduce`). Outside the About sequence no
+   position is active, so no stale About state reaches other pages.
+
+   Legibility: a static top-fade scrim above the pinned band — the same
+   treatment the fixed site header applies for content scrolling beneath.
+
+   Geometry: the row is the capped 30rem content column (gutters inclusive),
+   so the band lands exactly on the content column of every viewport —
+   where the retired per-section bars used to sit (its bottom padding is the
+   established frame bottom inset + safe area).
+   ========================================================================== */
+
+.ab {
+  --ab-accent: #00e6bc;
+
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
+  /* The band's empty middle passes taps through to the content behind it;
+     its controls re-enable pointer events individually. */
+  pointer-events: none;
+}
+
+/* Static fade for content traveling past the pinned band. */
+.ab::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: 5rem;
+  background: linear-gradient(
+    0deg,
+    rgb(2 10 9 / 86%) 0%,
+    rgb(3 14 11 / 40%) 34%,
+    rgb(4 17 13 / 0%) 100%
+  );
+  pointer-events: none;
+}
+
+.ab__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  max-width: 30rem;
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+  padding-bottom: calc(
+    env(safe-area-inset-bottom, 0px) + clamp(0.875rem, 2.4svh, 1.125rem)
+  );
+}
+
+/* --- ABOUT — current location at Block 01, a link from Block 02 on ------- */
+
+.ab__about {
+  flex: none;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+span.ab__about {
+  cursor: default;
+}
+
+a.ab__about {
+  text-decoration: none;
+  pointer-events: auto;
+}
+
+.ab__about:focus-visible {
+  outline: 2px solid rgb(242 240 232 / 62%);
+  outline-offset: 3px;
+}
+
+/* --- step track — the sequence's one five-position indicator -------------
+   Positions are fixed slots (equal flex, gap rhythm, hairline ground). The
+   active state comes from AboutBar's cumulative subsection index as an
+   `is-active` class; geometry is identical in every state. */
+
+.ab__track {
+  flex: 1 1 0%;
+  max-width: 10.5rem;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.3rem, 2.2vw, 0.5rem);
+  margin-inline: auto;
+}
+
+.ab__track-cell {
+  position: relative;
+  flex: 1 1 0%;
+  height: 2px;
+  border-radius: 1px;
+  background: rgb(242 240 232 / 16%);
+}
+
+/* The paint layer: one full-length dash per position, always — no scaleX,
+   no movement, no width interpolation. Its opacity alone is the state. */
+.ab__track-cell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-color: var(--ab-accent);
+  box-shadow:
+    0 0 5px rgb(0 230 188 / 38%),
+    0 0 11px rgb(0 230 188 / 14%);
+  opacity: 0;
+}
+
+.ab__track-cell.is-active::after {
+  opacity: 1;
+}
+
+/* --- NEXT — path exists at Block 01; unresolved destinations stay inert -- */
+
+.ab__next {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0.4rem 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgb(242 240 232 / 78%);
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+a.ab__next {
+  text-decoration: none;
+}
+
+.ab__next svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  color: var(--ab-accent);
+}
+
+.ab__next:focus-visible {
+  outline: 2px solid rgb(242 240 232 / 62%);
+  outline-offset: 3px;
+}
+
+/* ---------------------------------------------------------------------------
+   NARROW PHONES — keep the hierarchy, shrink type responsibly.
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 359px) {
+  .ab__about,
+  .ab__next {
+    font-size: 0.6875rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   MOTION — controls ease only when the user accepts motion.
+   --------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  a.ab__about,
+  .ab__next {
+    transition: color 0.18s ease, background-color 0.18s ease, filter 0.18s ease;
+  }
+
+  /* Only the position whose state changes eases; positions never move. */
+  .ab__track-cell::after {
+    transition: opacity 0.2s ease;
+  }
+
+  a.ab__about:hover {
+    color: var(--ab-accent);
+  }
+
+  .ab__next:hover {
+    color: var(--ink-ivory);
+  }
+
+  .ab__next:hover svg {
+    filter: brightness(1.12);
+  }
+}

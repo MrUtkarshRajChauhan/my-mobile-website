@@ -1,0 +1,144 @@
+/* ============================================================================
+   ABOUT — Block 01 · Introduction (About sequence opening section)
+   ----------------------------------------------------------------------------
+   Phone-sized composition. No desktop layout: on wide viewports the frame is
+   capped at 30rem and centered as a safeguard while the artwork stays
+   full-viewport — the design itself never expands.
+
+   This section no longer carries its own header or section rail: the brand +
+   menu control live in the fixed SiteHeader (styles/site.css).
+
+   Tokens mirror the established site language:
+   - turquoise (About accent) #00e6bc — the headline's accent lines
+     (the progress fill lives in about-bar.css)
+   - ivory ink over the shared persistent scene artwork; serif display for
+     the `01 —` marker and the headline (Clash Display stays sans and is not
+     misrepresented)
+
+   Background: the fixed `.about-scene` layer (styles/about-background.css,
+   rendered by App.jsx) paints `assets/background-work-1.jpg` behind the whole About
+   sequence — this section stays transparent over it so the environment
+   never moves with the content. The former per-section backdrop painting,
+   per-section ground and legibility scrims are retired.
+   ========================================================================== */
+
+.ai {
+  --ai-ivory: #f2f0e8;
+  --ai-ivory-soft: rgb(242 240 232 / 82%);
+  --ai-faint: #94a89d;
+  --ai-accent: #00e6bc;
+
+  color-scheme: dark;
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  overflow-x: clip;
+  /* Transparent ground on purpose: the fixed .about-scene layer shows
+     through everywhere in the About region. */
+  color: var(--ai-ivory);
+  font-family: 'Clash Display', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+@supports (min-height: 100dvh) {
+  .ai {
+    min-height: 100dvh;
+  }
+
+  .ai__frame {
+    min-height: 100dvh;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   PHONE FRAME — content column; capped + centered on wide viewports only.
+   --------------------------------------------------------------------------- */
+
+.ai__frame {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 30rem;
+  min-height: 100vh;
+  margin-inline: auto;
+  /* Top padding holds this section's content clear of the fixed
+     SiteHeader bar. Bottom-anchored content below that
+     band keeps the reference composition; content taller than the viewport
+     grows the section naturally and stays fully scrollable. */
+  padding:
+    calc(env(safe-area-inset-top, 0px) + var(--header-offset) + 1.5rem)
+    var(--page-gutter)
+    /* Bottom room for the AboutBar's pinned band (--about-bar-reserve is
+       set by the About region in about-background.css) on top of the
+       established safe-area bottom inset, so content never rests under the
+       persistent navigation. */
+    calc(
+      env(safe-area-inset-bottom, 0px) + clamp(0.875rem, 2.4svh, 1.125rem) +
+      var(--about-bar-reserve, 2.75rem)
+    )
+    var(--page-gutter);
+}
+
+/* --- section identifier + headline + paragraph -------------------------- */
+
+.ai__main {
+  margin-top: auto;
+  padding-top: clamp(1.25rem, 4svh, 2rem);
+}
+
+.ai__indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  margin-bottom: clamp(0.75rem, 2.6svh, 1rem);
+}
+
+.ai__indicator-num {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', Times, serif;
+  font-size: clamp(1.4375rem, 6vw, 1.75rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: rgb(242 240 232 / 88%);
+}
+
+.ai__indicator-label {
+  font-size: clamp(0.625rem, 2.5vw, 0.6875rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ai-faint);
+}
+
+/* Deliberate three-line serif headline; spans stay atomic so the designed
+   line breaks hold on standard phones and wrap cleanly, never mid-word. */
+
+.ai__headline {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', Times, serif;
+  font-weight: 400;
+  font-size: clamp(2.6rem, 8.4vw, 4.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  margin-bottom: clamp(0.875rem, 3svh, 1.25rem);
+}
+
+.ai__headline > span {
+  white-space: nowrap;
+}
+
+.ai__headline-accent {
+  color: var(--ai-accent);
+}
+
+.ai__para {
+  max-width: var(--body-copy-max);
+  font-size: clamp(0.9375rem, 3.5vw, 1.0625rem);
+  line-height: 1.65;
+  color: var(--ai-ivory-soft);
+  margin-bottom: clamp(1.375rem, 4svh, 2rem);
+}
+

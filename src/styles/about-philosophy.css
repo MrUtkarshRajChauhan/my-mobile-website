@@ -1,0 +1,143 @@
+/* ============================================================================
+   ABOUT — Block 02 · Philosophy (second section of the About sequence)
+   ----------------------------------------------------------------------------
+   Mirrors Block 01's structural sheet (about-intro.css) with the sequence's
+   established tokens. This section carries no header or section rail of its
+   own: the brand + menu control live in the fixed SiteHeader
+   (styles/site.css). The frame's top padding keeps content clear
+   of the fixed bar.
+
+   Established tokens:
+
+   - turquoise accent #00e6bc — the About-sequence accent set on Block 01
+     (the artwork's own bloom leans green-mint; #00e6bc is its match)
+   - ivory ink + serif display over the sans UI voice (root type tokens)
+
+   Background: the fixed `.about-scene` layer (styles/about-background.css,
+   rendered by App.jsx) paints `assets/background-work-1.jpg` behind the whole About
+   sequence — this section stays transparent over it so the environment
+   never moves with the content. The former per-section backdrop painting,
+   per-section ground and legibility scrims are retired; the progress fill
+   lives in about-bar.css.
+   ========================================================================== */
+
+.ph {
+  --ph-accent: #00e6bc;
+
+  color-scheme: dark;
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  overflow-x: clip;
+  /* Transparent ground on purpose: the fixed .about-scene layer shows
+     through everywhere in the About region. */
+  color: var(--ink-ivory);
+  font-family: var(--sans-ui);
+}
+
+@supports (min-height: 100dvh) {
+  .ph {
+    min-height: 100dvh;
+  }
+
+  .ph__frame {
+    min-height: 100dvh;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   PHONE FRAME — content column; capped + centered on wide viewports only.
+   --------------------------------------------------------------------------- */
+
+.ph__frame {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 30rem;
+  min-height: 100vh;
+  margin-inline: auto;
+  /* Top padding holds this section's content clear of the fixed
+     SiteHeader bar (see about-intro.css for the geometry note). */
+  padding:
+    calc(env(safe-area-inset-top, 0px) + var(--header-offset) + 1.5rem)
+    var(--page-gutter)
+    /* Bottom room for the AboutBar's pinned band (--about-bar-reserve is
+       set by the About region in about-background.css; see about-intro.css
+       for the geometry note). */
+    calc(
+      env(safe-area-inset-bottom, 0px) + clamp(0.875rem, 2.4svh, 1.125rem) +
+      var(--about-bar-reserve, 2.75rem)
+    )
+    var(--page-gutter);
+}
+
+/* --- section identifier + headline + paragraph -------------------------- */
+
+.ph__main {
+  margin-top: auto;
+  padding-top: clamp(1.25rem, 4svh, 2rem);
+}
+
+.ph__indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  margin-bottom: clamp(0.75rem, 2.6svh, 1rem);
+}
+
+.ph__indicator-num {
+  font-family: var(--serif-display);
+  font-size: clamp(1.4375rem, 6vw, 1.75rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: rgb(242 240 232 / 88%);
+}
+
+.ph__indicator-label {
+  font-size: clamp(0.625rem, 2.5vw, 0.6875rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* Two-line serif headline; spans stay atomic so the designed line breaks
+   hold on standard phones and wrap cleanly, never mid-word. The accent word
+   sits at the end of each line.
+   Size is calibrated against measured Playfair text runs: "Design with
+   purpose." must stay inside the frame's content width on every supported
+   viewport (fits 320px with ~21px margin, scales up through 430px, and the
+   3.1rem cap keeps the 30rem-wide desktop window inside itself too). */
+
+.ph__headline {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--serif-display);
+  font-weight: 400;
+  font-size: clamp(1.95rem, 8.2vw, 3.1rem);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+  margin-bottom: clamp(0.875rem, 3svh, 1.25rem);
+}
+
+.ph__headline > span {
+  white-space: nowrap;
+}
+
+.ph__headline-accent {
+  font-style: normal;
+  color: var(--ph-accent);
+}
+
+.ph__para {
+  max-width: var(--body-copy-max);
+  font-size: clamp(0.9375rem, 3.5vw, 1.0625rem);
+  line-height: 1.65;
+  color: var(--ink-soft);
+  margin-bottom: clamp(1.375rem, 4svh, 2rem);
+}
+
